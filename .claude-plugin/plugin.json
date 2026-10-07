@@ -1,0 +1,6 @@
+{
+  "name": "usage-line",
+  "version": "0.1.0",
+  "description": "Shows Claude usage (rate-limit windows, context, cost) right-aligned above the prompt.",
+  "author": { "name": "Damian Bravi" }
+}
