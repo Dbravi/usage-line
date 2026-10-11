@@ -44,6 +44,9 @@ then `/reload-plugins`, or start a new session.
 - **Rate-limit windows need a subscription.** Off one, the engine reports none and the line falls back
   to context and cost alone. Before the first response of a session there is nothing to show and the
   line stays empty.
+- **It shares the band with other mods.** Whatever other mods draw above the prompt (a test run's
+  progress, say) stays, and the usage line sits under it. A mod that draws its band without passing
+  on what's beneath it would still hide the line; that's up to the other mod.
 - **The band's right edge.** The line sits flush right in the width the band gets; the engine's `[-]`
   collapse mark lives in the cells outside it and can't be moved.
 

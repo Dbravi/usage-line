@@ -30,7 +30,7 @@ test('draws the rate-limit windows, context and cost', async ($, on) => {
   }
   on('session.usage', () => ({ value: usage }))
   on('clock.now', () => ({ value: Date.now() }))
-  on('ui.render', () => null)
+  on('ui.render', () => ({ type: 'Box', props: {}, children: [] }))
 
   for (const surface of ['terminal', 'desktop'] as const) {
     const ui = await mountBand($, surface)
@@ -38,6 +38,28 @@ test('draws the rate-limit windows, context and cost', async ($, on) => {
     expect((await ui.find({ type: 'Text', text: /week 41% \(2d 4h\)/ }))?.props.color).toBe('yellow')
     expect((await ui.find({ type: 'Text', text: /context 85%/ }))?.props.color).toBe('red')
     expect(await ui.find({ type: 'Text', text: /\$1\.20/ })).toBeDefined()
+    await ui.unmount()
+  }
+})
+
+test("keeps what other plugins draw above the prompt, with the line under it", async ($, on) => {
+  const usage: SessionUsage = {
+    startedAt: 0,
+    context: { window: 200000, tokens: 20000, percent: 10 },
+    rateLimits: [],
+    cost: { usd: 0.5 },
+  }
+  on('session.usage', () => ({ value: usage }))
+  on('clock.now', () => ({ value: Date.now() }))
+  on('ui.render', () => ({ type: 'Text', props: {}, children: ['Runboard 40% · 4 passed'] }))
+
+  for (const surface of ['terminal', 'desktop'] as const) {
+    const ui = await mountBand($, surface)
+    const texts = (await ui.findAll({ type: 'Text' })).map(node => node.children.join(''))
+    const band = texts.findIndex(text => text.includes('Runboard 40%'))
+    const line = texts.findIndex(text => text.includes('context 10%'))
+    expect(band).toBeGreaterThanOrEqual(0)
+    expect(line).toBeGreaterThan(band)
     await ui.unmount()
   }
 })

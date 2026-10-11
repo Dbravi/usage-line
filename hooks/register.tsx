@@ -72,20 +72,27 @@ export const register: Register = on => {
       return next(e)
     }
 
+    // Other plugins share the place above the prompt: draw what they draw first and the line last, so
+    // it hides nobody and sits at the bottom whatever order the plugins run in.
+    const below = await next(e).catch(() => null)
+
     const { Box, Text } = $.ui.resolve(e)
 
     return (
-      <Box width={e.props.bodyColumns} justifyContent="flex-end">
-        {parts.map((part, index) => {
-          const color = colorOf(part.percent)
+      <Box flexDirection="column">
+        {below}
+        <Box width={e.props.bodyColumns} justifyContent="flex-end">
+          {parts.map((part, index) => {
+            const color = colorOf(part.percent)
 
-          return (
-            <Text key={part.text} dimColor={color === undefined} color={color}>
-              {index === 0 ? '' : ' · '}
-              {part.text}
-            </Text>
-          )
-        })}
+            return (
+              <Text key={part.text} dimColor={color === undefined} color={color}>
+                {index === 0 ? '' : ' · '}
+                {part.text}
+              </Text>
+            )
+          })}
+        </Box>
       </Box>
     )
   })
